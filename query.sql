@@ -1,0 +1,126 @@
+-- REPORT 1: Jumlah siswa per kelas
+-- SELECT c.id,
+--        c.name AS classroom,
+--        COUNT(cs.student_id) AS total_students
+-- FROM classrooms c
+-- LEFT JOIN classroom_students cs ON c.id = cs.classroom_id
+-- GROUP BY c.id, c.name
+-- ORDER BY total_students DESC;
+
+-- ABORT;
+-- END;
+-- ROLLBACK;
+-- COMMIT;
+
+-- -- REPORT 2: Daftar mentor per kelas
+-- SELECT c.id AS classroom_id,
+--        c.name AS classroom,
+--        u.id AS mentor_id,
+--        u.name AS mentor_name
+-- FROM classrooms c
+-- LEFT JOIN classroom_mentors cm ON c.id = cm.classroom_id
+-- LEFT JOIN users u ON cm.mentor_id = u.id
+-- ORDER BY c.id, mentor_name;
+
+-- -- REPORT 3: Kehadiran siswa per jadwal
+-- SELECT s.id AS schedule_id,
+--        s.topic,
+--        s.start_time,
+--        u.id AS student_id,
+--        u.name AS student_name,
+--        a.status AS attendance_status,
+--        a.checked_at
+-- FROM schedules s
+-- LEFT JOIN attendances a ON s.id = a.schedule_id
+-- LEFT JOIN users u ON a.user_id = u.id
+-- ORDER BY s.start_time, u.name;
+
+-- -- REPORT 4: Rekap kehadiran bulanan per siswa
+-- SELECT u.id AS student_id,
+--        u.name AS student_name,
+--        DATE_TRUNC('week', a.checked_at) AS week,
+--        SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) AS total_present,
+--        SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) AS total_absent
+-- FROM users u
+-- JOIN attendances a ON u.id = a.user_id
+-- GROUP BY u.id, student_name, week
+-- ORDER BY week DESC, student_name;
+
+-- -- REPORT 5: Daftar materi yang digunakan per kelas
+-- SELECT c.id AS classroom_id,
+--        c.name,
+--        m.id AS material_id,
+--        m.title,
+--        m.file_url,
+--        m.created_at
+-- FROM classrooms c
+-- JOIN material_classrooms mc ON c.id = mc.classroom_id
+-- JOIN materials m ON mc.material_id = m.id
+-- ORDER BY c.id, m.created_at DESC;
+
+-- -- REPORT 6: Daftar assignment + deadline + creator + submission count
+-- SELECT c.id AS classroom_id,
+--        c.name AS classroom,
+--        a.id AS assignment_id,
+--        a.title,
+--        a.deadline,
+--        u.name AS created_by,
+--        COUNT(asb.id) AS total_submissions
+-- FROM assignments a
+-- JOIN classrooms c ON a.classroom_id = c.id
+-- JOIN users u ON a.created_by = u.id
+-- LEFT JOIN assignment_submissions asb ON a.id = asb.assignment_id
+-- GROUP BY c.id, c.name, a.id, u.name
+-- ORDER BY c.id, a.deadline DESC;
+
+-- -- REPORT 7: Riwayat submission tugas per siswa
+-- SELECT u.id AS student_id,
+--        u.name AS student_name,
+--        a.id AS assignment_id,
+--        a.title AS assignment_title,
+--        asb.file_url AS submission,
+--        asb.created_at AS submitted_at
+-- FROM assignment_submissions asb
+-- JOIN users u ON asb.student_id = u.id
+-- JOIN assignments a ON asb.assignment_id = a.id
+-- ORDER BY u.id, a.deadline;
+
+-- -- REPORT 8: Grade list – nilai siswa per assignment
+-- SELECT a.id AS assignment_id,
+--        a.title,
+--        u.id AS student_id,
+--        u.name AS student_name,
+--        g.grade,
+--        g.feedback,
+--        g.graded_at
+-- FROM grades g
+-- JOIN assignments a ON g.assignment_id = a.id
+-- JOIN users u ON g.student_id = u.id
+-- ORDER BY a.id, student_name;
+
+-- -- REPORT 9: Rata-rata nilai per siswa
+-- SELECT c.id AS classroom_id,
+--        c.name AS classroom,
+--        u.id AS student_id,
+--        u.name AS student_name,
+--        AVG(g.grade) AS average_grade
+-- FROM grades g
+-- JOIN assignments a ON g.assignment_id = a.id
+-- JOIN classroom_students cs ON g.student_id = cs.student_id AND cs.classroom_id = a.classroom_id
+-- JOIN classrooms c ON cs.classroom_id = c.id
+-- JOIN users u ON g.student_id = u.id
+-- GROUP BY c.id, c.name, u.id, u.name
+-- ORDER BY classroom_id, average_grade DESC;
+
+-- -- REPORT 10: Notifikasi per user
+-- SELECT u.id AS user_id,
+--        u.name AS user_name,
+--        n.id AS notification_id,
+--        n.title,
+--        n.message,
+--        n.is_read,
+--        n.created_at
+-- FROM users u
+-- LEFT JOIN notifications n ON u.id = n.user_id
+-- ORDER BY user_id, n.created_at DESC;
+
